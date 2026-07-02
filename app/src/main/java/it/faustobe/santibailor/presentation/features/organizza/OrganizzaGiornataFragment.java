@@ -1,59 +1,79 @@
 package it.faustobe.santibailor.presentation.features.organizza;
 
+import android.app.DatePickerDialog;
+import android.app.TimePickerDialog;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageButton;
+import android.widget.TextView;
 import android.widget.Toast;
 
 import androidx.annotation.NonNull;
 import androidx.annotation.Nullable;
 import androidx.fragment.app.Fragment;
-import androidx.lifecycle.ViewModelProvider;
 import androidx.navigation.Navigation;
 
 import com.google.android.material.button.MaterialButton;
 
-import java.text.ParseException;
 import java.text.SimpleDateFormat;
+import java.util.ArrayList;
 import java.util.Calendar;
-import java.util.Date;
+import java.util.List;
 import java.util.Locale;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
+
+import javax.inject.Inject;
 
 import dagger.hilt.android.AndroidEntryPoint;
 import it.faustobe.santibailor.R;
-import it.faustobe.santibailor.domain.model.Impegno;
+import it.faustobe.santibailor.data.local.dao.ImpegnoDao;
+import it.faustobe.santibailor.data.local.entities.ImpegnoEntity;
 import it.faustobe.santibailor.domain.model.Priorita;
-import it.faustobe.santibailor.presentation.features.impegni.ImpegniViewModel;
 
 @AndroidEntryPoint
 public class OrganizzaGiornataFragment extends Fragment {
-    private ImpegniViewModel impegniViewModel;
 
-    private EditText etImpegno1, etImpegno2, etImpegno3, etImpegno4, etImpegno5;
-    private EditText etOra1, etOra2, etOra3, etOra4, etOra5;
+    @Inject
+    ImpegnoDao impegnoDao;
+
+    private EditText[] etTitoli;
+    private TextView[] tvOre;
+    private TextView tvDataSelezionata;
     private MaterialButton btnSalva;
     private ImageButton btnBack;
+
+    private Calendar selectedDate;
+    private final Handler mainHandler = new Handler(Looper.getMainLooper());
+    private final ExecutorService executor = Executors.newSingleThreadExecutor();
 
     @Nullable
     @Override
     public View onCreateView(@NonNull LayoutInflater inflater, @Nullable ViewGroup container, @Nullable Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_organizza_giornata, container, false);
 
-        etImpegno1 = view.findViewById(R.id.et_impegno_1);
-        etImpegno2 = view.findViewById(R.id.et_impegno_2);
-        etImpegno3 = view.findViewById(R.id.et_impegno_3);
-        etImpegno4 = view.findViewById(R.id.et_impegno_4);
-        etImpegno5 = view.findViewById(R.id.et_impegno_5);
+        etTitoli = new EditText[]{
+            view.findViewById(R.id.et_impegno_1),
+            view.findViewById(R.id.et_impegno_2),
+            view.findViewById(R.id.et_impegno_3),
+            view.findViewById(R.id.et_impegno_4),
+            view.findViewById(R.id.et_impegno_5)
+        };
 
-        etOra1 = view.findViewById(R.id.et_ora_1);
-        etOra2 = view.findViewById(R.id.et_ora_2);
-        etOra3 = view.findViewById(R.id.et_ora_3);
-        etOra4 = view.findViewById(R.id.et_ora_4);
-        etOra5 = view.findViewById(R.id.et_ora_5);
+        tvOre = new TextView[]{
+            view.findViewById(R.id.tv_ora_1),
+            view.findViewById(R.id.tv_ora_2),
+            view.findViewById(R.id.tv_ora_3),
+            view.findViewById(R.id.tv_ora_4),
+            view.findViewById(R.id.tv_ora_5)
+        };
 
+        tvDataSelezionata = view.findViewById(R.id.tv_data_selezionata);
         btnSalva = view.findViewById(R.id.btn_salva_impegni);
         btnBack = view.findViewById(R.id.btn_back);
 
@@ -64,90 +84,157 @@ public class OrganizzaGiornataFragment extends Fragment {
     public void onViewCreated(@NonNull View view, @Nullable Bundle savedInstanceState) {
         super.onViewCreated(view, savedInstanceState);
 
-        impegniViewModel = new ViewModelProvider(this).get(ImpegniViewModel.class);
+        selectedDate = Calendar.getInstance();
+
+        setupDatePicker();
+        setupTimePickers();
 
         btnBack.setOnClickListener(v -> Navigation.findNavController(v).navigateUp());
-
         btnSalva.setOnClickListener(v -> salvaImpegni());
     }
 
-    private void salvaImpegni() {
-        int count = 0;
+    private void setupDatePicker() {
+        aggiornaTestoData();
+        tvDataSelezionata.setOnClickListener(v -> {
+            DatePickerDialog dialog = new DatePickerDialog(
+                requireContext(),
+                (picker, year, month, dayOfMonth) -> {
+                    selectedDate.set(Calendar.YEAR, year);
+                    selectedDate.set(Calendar.MONTH, month);
+                    selectedDate.set(Calendar.DAY_OF_MONTH, dayOfMonth);
+                    aggiornaTestoData();
+                },
+                selectedDate.get(Calendar.YEAR),
+                selectedDate.get(Calendar.MONTH),
+                selectedDate.get(Calendar.DAY_OF_MONTH)
+            );
+            dialog.getDatePicker().setMinDate(System.currentTimeMillis() - 1000);
+            dialog.show();
+        });
+    }
 
-        // Impegno 1
-        if (!etImpegno1.getText().toString().trim().isEmpty()) {
-            salvaImpegno(etImpegno1.getText().toString(), etOra1.getText().toString());
-            count++;
-        }
+    private void aggiornaTestoData() {
+        Calendar oggi = Calendar.getInstance();
+        boolean isOggi = selectedDate.get(Calendar.YEAR) == oggi.get(Calendar.YEAR)
+                && selectedDate.get(Calendar.DAY_OF_YEAR) == oggi.get(Calendar.DAY_OF_YEAR);
 
-        // Impegno 2
-        if (!etImpegno2.getText().toString().trim().isEmpty()) {
-            salvaImpegno(etImpegno2.getText().toString(), etOra2.getText().toString());
-            count++;
-        }
-
-        // Impegno 3
-        if (!etImpegno3.getText().toString().trim().isEmpty()) {
-            salvaImpegno(etImpegno3.getText().toString(), etOra3.getText().toString());
-            count++;
-        }
-
-        // Impegno 4
-        if (!etImpegno4.getText().toString().trim().isEmpty()) {
-            salvaImpegno(etImpegno4.getText().toString(), etOra4.getText().toString());
-            count++;
-        }
-
-        // Impegno 5
-        if (!etImpegno5.getText().toString().trim().isEmpty()) {
-            salvaImpegno(etImpegno5.getText().toString(), etOra5.getText().toString());
-            count++;
-        }
-
-        if (count > 0) {
-            Toast.makeText(getContext(), count + " impegni salvati", Toast.LENGTH_SHORT).show();
-            Navigation.findNavController(requireView()).navigateUp();
+        if (isOggi) {
+            SimpleDateFormat sdf = new SimpleDateFormat("d MMMM", Locale.ITALIAN);
+            String dataFormattata = sdf.format(selectedDate.getTime());
+            tvDataSelezionata.setText(getString(R.string.organizza_oggi, dataFormattata));
         } else {
-            Toast.makeText(getContext(), "Inserisci almeno un impegno", Toast.LENGTH_SHORT).show();
+            SimpleDateFormat sdf = new SimpleDateFormat("d MMMM yyyy", Locale.ITALIAN);
+            tvDataSelezionata.setText(sdf.format(selectedDate.getTime()));
         }
     }
 
-    private void salvaImpegno(String titolo, String oraStr) {
-        Calendar dataOra = Calendar.getInstance();
+    private void setupTimePickers() {
+        Calendar now = Calendar.getInstance();
+        int minuti = now.get(Calendar.MINUTE);
+        int arrotondato = ((minuti / 15) + 1) * 15;
+        int oraDefault = now.get(Calendar.HOUR_OF_DAY);
+        if (arrotondato >= 60) {
+            arrotondato = 0;
+            oraDefault = (oraDefault + 1) % 24;
+        }
 
-        // Parse ora se fornita
-        if (!oraStr.trim().isEmpty()) {
-            SimpleDateFormat sdf = new SimpleDateFormat("HH:mm", Locale.ITALIAN);
+        String oraDefaultStr = String.format(Locale.ITALIAN, "%02d:%02d", oraDefault, arrotondato);
+
+        for (int i = 0; i < tvOre.length; i++) {
+            tvOre[i].setText(oraDefaultStr);
+            final int index = i;
+            tvOre[i].setOnClickListener(v -> mostraTimePicker(index));
+        }
+    }
+
+    private void mostraTimePicker(int index) {
+        String oraCorrente = tvOre[index].getText().toString();
+        int ora = 9, min = 0;
+        if (oraCorrente.contains(":")) {
+            String[] parti = oraCorrente.split(":");
             try {
-                Date time = sdf.parse(oraStr);
-                if (time != null) {
-                    Calendar timeCal = Calendar.getInstance();
-                    timeCal.setTime(time);
-                    dataOra.set(Calendar.HOUR_OF_DAY, timeCal.get(Calendar.HOUR_OF_DAY));
-                    dataOra.set(Calendar.MINUTE, timeCal.get(Calendar.MINUTE));
-                }
-            } catch (ParseException e) {
-                // Ignora errori di parsing, usa l'ora corrente
+                ora = Integer.parseInt(parti[0]);
+                min = Integer.parseInt(parti[1]);
+            } catch (NumberFormatException ignored) {
             }
         }
 
-        long now = System.currentTimeMillis();
-        Impegno impegno = new Impegno(
-            0,  // id (sarà assegnato dal database)
-            titolo,
-            "",  // descrizione
-            dataOra.getTimeInMillis(),  // dataOra come long
-            null,  // categoria
-            false,  // reminderEnabled
-            0,  // reminderMinutesBefore
-            false,  // completato
-            null,  // note
-            now,  // createdAt
-            now,  // updatedAt
-            Priorita.MEDIA.toString(),  // priorita come String
-            null  // imageUrl
+        TimePickerDialog dialog = new TimePickerDialog(
+            requireContext(),
+            (picker, hourOfDay, minute) -> {
+                String oraStr = String.format(Locale.ITALIAN, "%02d:%02d", hourOfDay, minute);
+                tvOre[index].setText(oraStr);
+            },
+            ora, min, true
         );
+        dialog.show();
+    }
 
-        impegniViewModel.insertImpegno(impegno);
+    private void salvaImpegni() {
+        List<ImpegnoEntity> entities = new ArrayList<>();
+
+        for (int i = 0; i < etTitoli.length; i++) {
+            String titolo = etTitoli[i].getText().toString().trim();
+            if (!titolo.isEmpty()) {
+                entities.add(creaEntity(titolo, tvOre[i].getText().toString()));
+            }
+        }
+
+        if (entities.isEmpty()) {
+            Toast.makeText(getContext(), getString(R.string.insert_at_least_one), Toast.LENGTH_SHORT).show();
+            return;
+        }
+
+        btnSalva.setEnabled(false);
+        int count = entities.size();
+
+        executor.execute(() -> {
+            for (ImpegnoEntity entity : entities) {
+                impegnoDao.insert(entity);
+            }
+            mainHandler.post(() -> {
+                if (isAdded() && getView() != null) {
+                    Toast.makeText(getContext(), getString(R.string.commitments_saved, count), Toast.LENGTH_SHORT).show();
+                    Navigation.findNavController(requireView()).navigateUp();
+                }
+            });
+        });
+    }
+
+    private ImpegnoEntity creaEntity(String titolo, String oraStr) {
+        Calendar dataOra = (Calendar) selectedDate.clone();
+
+        if (!oraStr.trim().isEmpty() && oraStr.contains(":")) {
+            String[] parti = oraStr.split(":");
+            try {
+                dataOra.set(Calendar.HOUR_OF_DAY, Integer.parseInt(parti[0]));
+                dataOra.set(Calendar.MINUTE, Integer.parseInt(parti[1]));
+            } catch (NumberFormatException ignored) {
+            }
+        }
+        dataOra.set(Calendar.SECOND, 0);
+        dataOra.set(Calendar.MILLISECOND, 0);
+
+        long now = System.currentTimeMillis();
+        return new ImpegnoEntity(
+            titolo,
+            "",
+            dataOra.getTimeInMillis(),
+            null,
+            false,
+            0,
+            false,
+            null,
+            now,
+            now,
+            Priorita.MEDIA,
+            null
+        );
+    }
+
+    @Override
+    public void onDestroyView() {
+        super.onDestroyView();
+        executor.shutdownNow();
     }
 }
