@@ -126,17 +126,6 @@
         tools:layout="@layout/fragment_info" />
 
     <fragment
-        android:id="@+id/testFragment"
-        android:name="it.faustobe.santibailor.presentation.features.test.TestFragment"
-        android:label="Test Fragment"
-        tools:layout="@layout/fragment_test">
-        <argument
-            android:name="testArg"
-            app:argType="integer"
-            android:defaultValue="0" />
-    </fragment>
-
-    <fragment
         android:id="@+id/manageRicorrenzeFragment"
         android:name="it.faustobe.santibailor.presentation.features.settings.ricorrenze.ManageRicorrenzeFragment"
         android:label="Gestione Ricorrenze"
