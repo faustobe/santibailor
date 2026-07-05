@@ -88,9 +88,9 @@ public class NoteAdapter extends RecyclerView.Adapter<NoteAdapter.NoteViewHolder
             }
 
             // Formatta e imposta data modifica
-            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.ITALIAN);
+            SimpleDateFormat sdf = new SimpleDateFormat("dd/MM/yyyy HH:mm", Locale.getDefault());
             String dataFormatted = sdf.format(new Date(nota.getDataModifica()));
-            tvDataModifica.setText("Modificata: " + dataFormatted);
+            tvDataModifica.setText(itemView.getContext().getString(R.string.note_modified, dataFormatted));
 
             // Click normale
             itemView.setOnClickListener(v -> {

@@ -1,5 +1,7 @@
 package it.faustobe.santibailor.presentation.features.note;
 
+import android.app.AlertDialog;
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -107,8 +109,45 @@ public class NoteListFragment extends Fragment implements NoteAdapter.OnNotaClic
 
     @Override
     public void onNotaLongClick(Nota nota) {
-        // Per ora non implementato, potrebbe aprire un menu contestuale
-        // TODO: Implementare menu contestuale
+        String[] options = {
+                getString(R.string.share_note),
+                getString(R.string.delete_note)
+        };
+        new AlertDialog.Builder(requireContext())
+                .setTitle(nota.getTitolo())
+                .setItems(options, (dialog, which) -> {
+                    if (which == 0) {
+                        shareNota(nota);
+                    } else {
+                        showDeleteConfirmationDialog(nota);
+                    }
+                })
+                .show();
+    }
+
+    private void shareNota(Nota nota) {
+        StringBuilder testo = new StringBuilder();
+        if (nota.getTitolo() != null && !nota.getTitolo().isEmpty()) {
+            testo.append(nota.getTitolo()).append("\n\n");
+        }
+        if (nota.getContenuto() != null) {
+            testo.append(nota.getContenuto());
+        }
+
+        Intent shareIntent = new Intent(Intent.ACTION_SEND);
+        shareIntent.setType("text/plain");
+        shareIntent.putExtra(Intent.EXTRA_SUBJECT, nota.getTitolo());
+        shareIntent.putExtra(Intent.EXTRA_TEXT, testo.toString());
+        startActivity(Intent.createChooser(shareIntent, getString(R.string.share_note)));
+    }
+
+    private void showDeleteConfirmationDialog(Nota nota) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.delete_note)
+                .setMessage(R.string.delete_note_confirm)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> viewModel.deleteNota(nota))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
     }
 
     @Override

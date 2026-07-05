@@ -252,6 +252,7 @@
     <string name="note_deleted">Nota eliminata</string>
     <string name="delete_note">Elimina nota</string>
     <string name="delete_note_confirm">Sei sicuro di voler eliminare questa nota?</string>
+    <string name="share_note">Condividi nota</string>
     <string name="note_modified">Modificata: %s</string>
     <string name="my_notes">Le mie Note</string>
     <string name="no_notes">Nessuna nota trovata</string>

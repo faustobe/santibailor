@@ -4,6 +4,19 @@ Benvenuti nella documentazione ufficiale del progetto SantiBailor, un'applicazio
 
 ## 📋 Aggiornamenti Recenti
 
+### Sessione di Sviluppo: 6 Luglio 2026
+
+**Pulizia codice e completamento feature note**
+
+- Rimosso `TestFragment` (fragment di sviluppo) dal nav graph e dal codice.
+- `HomeFragment`: eliminati tutti i blocchi di codice morto commentato (nav bar verticale,
+  taccuino, card personal info, card liste spesa, animazioni calendario obsolete) e i campi/import
+  ormai inutilizzati; il file è passato da ~1150 a ~750 righe senza cambi di comportamento.
+- Note: implementato il menu contestuale su long-press (condividi / elimina con conferma),
+  risolvendo il TODO in `NoteListFragment`; la data di modifica ora usa la risorsa `note_modified`
+  invece di una stringa hardcoded.
+- Roadmap sottostante aggiornata allo stato reale del progetto.
+
 ### Sessione di Sviluppo: 30 Dicembre 2025
 
 **Implementazione Quick Actions nella Home**
@@ -40,50 +53,50 @@ Benvenuti nella documentazione ufficiale del progetto SantiBailor, un'applicazio
 
 ## 🎯 Roadmap e Prossimi Step
 
-### Priorità Alta
-1. **Implementazione Completa Funzionalità Quick Actions**
-   - [ ] Completare navigazione pulsante "Scrivi" verso sistema note/post-it
-   - [ ] Implementare vista "Organizza" per gestione rapida impegni multipli
-   - [ ] Implementare vista "Riepilogo" con dashboard attività giornaliere
+### Completato
+1. **Funzionalità Quick Actions** ✅
+   - [x] Navigazione pulsante "Scrivi" verso sistema note/post-it (`NoteListFragment`/`NoteDetailFragment`)
+   - [x] Vista "Organizza" per gestione rapida impegni multipli (`OrganizzaGiornataFragment`)
+   - [x] Vista "Riepilogo" con dashboard attività giornaliere (`RiepilogoFragment`)
+   - [x] Menu contestuale note (condividi / elimina)
 
-2. **Ottimizzazione UX Home Screen**
-   - [ ] Migliorare animazioni transizioni calendario (considerare curve di easing personalizzate)
-   - [ ] Implementare gesture swipe per collapse/expand calendario
-   - [ ] Aggiungere feedback visivo/haptic ai pulsanti quick actions
+2. **Localizzazione** ✅
+   - [x] Traduzioni complete IT/EN (`values/` e `values-en/`)
 
-### Priorità Media
+### Priorità Alta — Notifiche Impegni (prossima fase)
 3. **Sistema Notifiche Impegni**
-   - [ ] Implementare notifiche push per impegni del giorno
-   - [ ] Configurare NotificationHelper per reminder personalizzabili
-   - [ ] Integrare WorkManager per notifiche programmate
+   - [ ] Worker per reminder degli impegni (sul modello di `DailySaintNotificationWorker`)
+   - [ ] Contenuto reale per `NotificationsFragment` (oggi è uno stub)
+   - [ ] Icona notifiche personalizzata (TODO in `NotificationHelper`)
 
-4. **Gestione Liste Spesa**
-   - [ ] Migliorare UI card liste spesa (attualmente base)
-   - [ ] Implementare condivisione liste tra utenti
-   - [ ] Aggiungere categorizzazione automatica articoli
+### Priorità Media — Dati al sicuro
+4. **Backup e Sincronizzazione**
+   - [ ] Export/Import dati in formato JSON (backup locale)
+   - [ ] Estendere la sync Firebase oltre le ricorrenze (impegni, note, liste) — solo se
+         la multi-device è un obiettivo: richiede gestione conflitti
 
-5. **Sincronizzazione e Backup**
-   - [ ] Implementare backup su Firebase Storage
-   - [ ] Sincronizzazione cross-device tramite Firebase Realtime Database
-   - [ ] Export/Import dati in formato JSON
+### Priorità Media — Qualità e Rilascio
+5. **Testing**
+   - [ ] Unit test per ViewModel e UseCase principali
+   - [ ] Test delle migration Room (il fallback distruttivo è volutamente disattivato)
 
-### Priorità Bassa
-6. **Miglioramenti UI/UX Generali**
-   - [ ] Implementare dark mode completo
-   - [ ] Aggiungere supporto per temi personalizzati
-   - [ ] Migliorare accessibilità (TalkBack, dimensioni font dinamiche)
+6. **Preparazione Release**
+   - [ ] `minifyEnabled true` con regole ProGuard verificate (Room, Hilt, Glide, Firebase)
+   - [ ] Signing config e bump versione
+   - [ ] Passata finale dark mode e accessibilità
 
-7. **Testing e Performance**
-   - [ ] Implementare unit test per ViewModel e Repository
-   - [ ] Aggiungere integration test per flussi principali
-   - [ ] Ottimizzare query database per prestazioni migliori
-   - [ ] Profilare e ottimizzare consumo memoria
+### Priorità Bassa — UX e Funzionalità Nuove
+7. **Miglioramenti UI/UX**
+   - [ ] Gesture swipe per collapse/expand calendario
+   - [ ] Feedback visivo/haptic ai pulsanti quick actions
+   - [ ] Temi personalizzati
 
-8. **Funzionalità Avanzate**
+8. **Funzionalità Avanzate** (post-1.0)
+   - [ ] Condivisione liste spesa tra utenti
+   - [ ] Categorizzazione automatica articoli spesa
    - [ ] Integrazione calendario di sistema
-   - [ ] Widget home screen per visualizzazione rapida
-   - [ ] Supporto per ricorrenze ricorrenti personalizzate
-   - [ ] Sistema di tagging e categorizzazione avanzato
+   - [ ] Widget home screen
+   - [ ] Sistema di tagging avanzato
 
 ### Note Tecniche
 - **Architettura**: Mantenere coerenza con pattern MVVM attuale
@@ -1652,6 +1665,6 @@ Questa documentazione è un progetto in continua evoluzione. Se trovi aree che n
 
 ---
 
-**Ultimo aggiornamento**: 30 Dicembre 2025
-**Versione Documentazione**: 2.0
+**Ultimo aggiornamento**: 6 Luglio 2026
+**Versione Documentazione**: 2.1
 **Stato Progetto**: In sviluppo attivo
