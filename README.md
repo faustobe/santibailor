@@ -4,6 +4,24 @@ Benvenuti nella documentazione ufficiale del progetto SantiBailor, un'applicazio
 
 ## 📋 Aggiornamenti Recenti
 
+### Sessione di Sviluppo: 6 Luglio 2026 (3) — Backup e Ripristino
+
+**Export/import dei dati utente in JSON**
+
+- **`BackupManager`** (`data/backup/`): esporta impegni, note, liste della spesa (con item),
+  prodotti frequenti e ricorrenze non religiose (laiche/personali — i santi sono precaricati)
+  in un file JSON versionato, tramite Storage Access Framework (nessun permesso storage).
+- **Ripristino sostitutivo**: i dati utente correnti vengono eliminati e rimpiazzati in
+  un'unica transazione Room; gli id vengono riassegnati (con remap lista→item) per evitare
+  collisioni con l'autoincrement e con i santi precaricati. Dopo il restore i promemoria
+  impegni vengono cancellati e rischedulati sui nuovi dati.
+- **UI**: nuove voci "Backup dei dati" e "Ripristina backup" in Impostazioni → Privacy e Dati,
+  con dialog di conferma (il restore non è annullabile).
+- Nuovi metodi DAO di lettura sync/cancellazione totale (nessun cambio di schema, versione DB
+  invariata a 11).
+- Nota per la release: con `minifyEnabled true` servono regole ProGuard che preservino le
+  entity Room usate da Gson via reflection.
+
 ### Sessione di Sviluppo: 6 Luglio 2026 (2) — Notifiche Impegni
 
 **Sistema promemoria impegni completo**
@@ -92,7 +110,7 @@ Benvenuti nella documentazione ufficiale del progetto SantiBailor, un'applicazio
 
 ### Priorità Media — Dati al sicuro
 4. **Backup e Sincronizzazione**
-   - [ ] Export/Import dati in formato JSON (backup locale)
+   - [x] Export/Import dati in formato JSON (backup locale via SAF)
    - [ ] Estendere la sync Firebase oltre le ricorrenze (impegni, note, liste) — solo se
          la multi-device è un obiettivo: richiede gestione conflitti
 

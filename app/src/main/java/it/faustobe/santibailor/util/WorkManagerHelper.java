@@ -183,4 +183,12 @@ public class WorkManagerHelper {
         WorkManager.getInstance(context).cancelUniqueWork(IMPEGNO_REMINDER_WORK_PREFIX + impegnoId);
         android.util.Log.d("WorkManagerHelper", "Reminder impegno " + impegnoId + " cancellato");
     }
+
+    /**
+     * Cancella tutti i promemoria impegni schedulati (usato dal ripristino backup)
+     */
+    public static void cancelAllImpegnoReminders(Context context) {
+        WorkManager.getInstance(context).cancelAllWorkByTag(IMPEGNO_REMINDER_WORK_PREFIX);
+        android.util.Log.d("WorkManagerHelper", "Tutti i reminder impegni cancellati");
+    }
 }

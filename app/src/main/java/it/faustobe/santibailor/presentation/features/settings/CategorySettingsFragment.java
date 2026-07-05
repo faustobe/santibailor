@@ -26,10 +26,17 @@ import androidx.navigation.NavController;
 import androidx.navigation.Navigation;
 import androidx.recyclerview.widget.LinearLayoutManager;
 
+import java.text.SimpleDateFormat;
 import java.util.Arrays;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
+import javax.inject.Inject;
+
+import dagger.hilt.android.AndroidEntryPoint;
 import it.faustobe.santibailor.R;
+import it.faustobe.santibailor.data.backup.BackupManager;
 import it.faustobe.santibailor.databinding.FragmentCategorySettingsBinding;
 import it.faustobe.santibailor.util.BackgroundManager;
 import it.faustobe.santibailor.util.ImageHandler;
@@ -37,12 +44,18 @@ import it.faustobe.santibailor.util.LanguageManager;
 import it.faustobe.santibailor.util.ThemeManager;
 import it.faustobe.santibailor.util.WorkManagerHelper;
 
+@AndroidEntryPoint
 public class CategorySettingsFragment extends Fragment implements CategorySettingsAdapter.OnSettingItemClickListener {
     private FragmentCategorySettingsBinding binding;
     private CategorySettingsAdapter adapter;
     private List<SettingItem> settingItems;
     private ActivityResultLauncher<String> imagePickerLauncher;
     private ActivityResultLauncher<String> notificationPermissionLauncher;
+    private ActivityResultLauncher<String> createBackupLauncher;
+    private ActivityResultLauncher<String[]> openBackupLauncher;
+
+    @Inject
+    BackupManager backupManager;
 
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
@@ -64,6 +77,22 @@ public class CategorySettingsFragment extends Fragment implements CategorySettin
                         Toast.makeText(requireContext(),
                                 getString(R.string.notifications_disabled_label),
                                 Toast.LENGTH_SHORT).show();
+                    }
+                }
+        );
+        createBackupLauncher = registerForActivityResult(
+                new ActivityResultContracts.CreateDocument("application/json"),
+                uri -> {
+                    if (uri != null) {
+                        performBackupExport(uri);
+                    }
+                }
+        );
+        openBackupLauncher = registerForActivityResult(
+                new ActivityResultContracts.OpenDocument(),
+                uri -> {
+                    if (uri != null) {
+                        confirmBackupRestore(uri);
                     }
                 }
         );
@@ -155,6 +184,10 @@ public class CategorySettingsFragment extends Fragment implements CategorySettin
             showImpegniNotificationDialog();
         } else if (getString(R.string.settings_privacy_app_permissions_title).equals(title)) {
             openAppPermissions();
+        } else if (getString(R.string.settings_backup_title).equals(title)) {
+            startBackupExport();
+        } else if (getString(R.string.settings_restore_title).equals(title)) {
+            startBackupRestore();
         } else if (getString(R.string.settings_privacy_export_data_title).equals(title)) {
             exportData();
         } else if (getString(R.string.settings_privacy_delete_data_title).equals(title)) {
@@ -432,6 +465,63 @@ public class CategorySettingsFragment extends Fragment implements CategorySettin
                 .setMessage(R.string.privacy_policy_text)
                 .setPositiveButton(android.R.string.ok, null)
                 .show();
+    }
+
+    private void startBackupExport() {
+        String fileName = "santibailor_backup_"
+                + new SimpleDateFormat("yyyyMMdd_HHmm", Locale.US).format(new Date())
+                + ".json";
+        createBackupLauncher.launch(fileName);
+    }
+
+    private void performBackupExport(Uri uri) {
+        backupManager.exportToUri(uri, new BackupManager.Callback() {
+            @Override
+            public void onSuccess() {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), getString(R.string.backup_success), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), getString(R.string.backup_error), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
+    }
+
+    private void startBackupRestore() {
+        // Alcuni file manager etichettano i .json in modi diversi
+        openBackupLauncher.launch(new String[]{"application/json", "application/octet-stream", "text/plain"});
+    }
+
+    private void confirmBackupRestore(Uri uri) {
+        new AlertDialog.Builder(requireContext())
+                .setTitle(R.string.restore_confirm_title)
+                .setMessage(R.string.restore_confirm_message)
+                .setPositiveButton(android.R.string.ok, (dialog, which) -> performBackupRestore(uri))
+                .setNegativeButton(android.R.string.cancel, null)
+                .show();
+    }
+
+    private void performBackupRestore(Uri uri) {
+        backupManager.importFromUri(uri, new BackupManager.Callback() {
+            @Override
+            public void onSuccess() {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), getString(R.string.restore_success), Toast.LENGTH_SHORT).show();
+                }
+            }
+
+            @Override
+            public void onError(String message) {
+                if (isAdded()) {
+                    Toast.makeText(requireContext(), getString(R.string.restore_error), Toast.LENGTH_LONG).show();
+                }
+            }
+        });
     }
 
     private void shareExport() {

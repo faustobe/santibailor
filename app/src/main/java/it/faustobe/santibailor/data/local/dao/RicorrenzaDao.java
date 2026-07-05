@@ -129,4 +129,15 @@ public interface RicorrenzaDao extends BaseDao<RicorrenzaEntity> {
 
     @Query("SELECT bio FROM santi WHERE id = :id")
     String getBio(int id);
+
+    /**
+     * Ricorrenze non religiose (laiche e personali), cioè i dati creati
+     * dall'utente — i santi (id_tipo = 1) sono precaricati dall'asset.
+     * Usate dal backup.
+     */
+    @Query("SELECT * FROM santi WHERE id_tipo != 1")
+    List<RicorrenzaEntity> getRicorrenzeNonReligioseSync();
+
+    @Query("DELETE FROM santi WHERE id_tipo != 1")
+    void deleteRicorrenzeNonReligiose();
 }

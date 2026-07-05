@@ -34,4 +34,10 @@ public interface ProdottoFrequenteDao {
 
     @Query("DELETE FROM prodotti_frequenti WHERE id = :id")
     void delete(int id);
+
+    @Query("SELECT * FROM prodotti_frequenti")
+    List<ProdottoFrequenteEntity> getAllProdottiSync();
+
+    @Query("DELETE FROM prodotti_frequenti")
+    void deleteAllProdotti();
 }

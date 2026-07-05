@@ -124,6 +124,8 @@ public class SettingsFragment extends Fragment {
     private void navigateToPrivacy() {
         List<SettingItem> items = new ArrayList<>();
         items.add(new SettingItem(getString(R.string.settings_privacy_app_permissions_title), getString(R.string.settings_privacy_app_permissions_desc)));
+        items.add(new SettingItem(getString(R.string.settings_backup_title), getString(R.string.settings_backup_desc)));
+        items.add(new SettingItem(getString(R.string.settings_restore_title), getString(R.string.settings_restore_desc)));
         items.add(new SettingItem(getString(R.string.settings_privacy_export_data_title), getString(R.string.settings_privacy_export_data_desc)));
         items.add(new SettingItem(getString(R.string.settings_privacy_delete_data_title), getString(R.string.settings_privacy_delete_data_desc)));
         items.add(new SettingItem(getString(R.string.settings_privacy_policy_title), getString(R.string.settings_privacy_policy_desc)));

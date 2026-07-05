@@ -28,6 +28,12 @@ public interface ItemSpesaDao {
     @Query("SELECT * FROM item_spesa WHERE id_lista = :idLista ORDER BY ordine ASC, id ASC")
     List<ItemSpesaEntity> getItemsByListaIdSync(int idLista);
 
+    @Query("SELECT * FROM item_spesa")
+    List<ItemSpesaEntity> getAllItemsSync();
+
+    @Query("DELETE FROM item_spesa")
+    void deleteAllItems();
+
     @Query("SELECT * FROM item_spesa WHERE id = :id")
     ItemSpesaEntity getItemById(int id);
 

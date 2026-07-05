@@ -118,4 +118,10 @@ public interface ImpegnoDao extends BaseDao<ImpegnoEntity> {
      */
     @Query("DELETE FROM impegni WHERE completato = 1 AND data_ora < :cutoffDate")
     void deleteOldCompletedImpegni(long cutoffDate);
+
+    /**
+     * Elimina tutti gli impegni (usato dal ripristino backup)
+     */
+    @Query("DELETE FROM impegni")
+    void deleteAllImpegni();
 }

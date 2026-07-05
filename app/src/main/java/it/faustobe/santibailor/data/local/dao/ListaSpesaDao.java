@@ -45,4 +45,7 @@ public interface ListaSpesaDao {
 
     @Query("DELETE FROM liste_spesa WHERE completata = 1")
     void deleteAllCompletate();
+
+    @Query("DELETE FROM liste_spesa")
+    void deleteAllListe();
 }

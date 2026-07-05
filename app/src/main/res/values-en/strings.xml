@@ -254,6 +254,18 @@
     <string name="delete_note_confirm">Are you sure you want to delete this note?</string>
     <string name="share_note">Share note</string>
 
+    <!-- Backup and restore -->
+    <string name="settings_backup_title">Data backup</string>
+    <string name="settings_backup_desc">Save commitments, notes, lists and recurrences to a JSON file</string>
+    <string name="settings_restore_title">Restore backup</string>
+    <string name="settings_restore_desc">Import data from a backup file</string>
+    <string name="backup_success">Backup saved</string>
+    <string name="backup_error">Error while saving the backup</string>
+    <string name="restore_confirm_title">Restore backup?</string>
+    <string name="restore_confirm_message">Current data (commitments, notes, shopping lists and personal recurrences) will be replaced with the backup contents. This cannot be undone.</string>
+    <string name="restore_success">Backup restored</string>
+    <string name="restore_error">Restore failed: invalid file</string>
+
     <!-- Commitment reminders -->
     <string name="impegno_reminder_notification_title">Commitment reminder</string>
     <string name="promemoria_empty_title">No reminders scheduled</string>
