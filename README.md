@@ -4,7 +4,28 @@ Benvenuti nella documentazione ufficiale del progetto SantiBailor, un'applicazio
 
 ## 📋 Aggiornamenti Recenti
 
-### Sessione di Sviluppo: 6 Luglio 2026
+### Sessione di Sviluppo: 6 Luglio 2026 (2) — Notifiche Impegni
+
+**Sistema promemoria impegni completo**
+
+- **Fix critico WorkManager**: l'inizializzazione manuale non passava la `HiltWorkerFactory`,
+  quindi i worker `@HiltWorker` (incluso `DailySaintNotificationWorker`) non potevano essere
+  istanziati. Ora la factory è iniettata in `MyApplication`.
+- **`ImpegnoReminderWorker`**: nuovo worker che mostra la notifica di promemoria per un impegno;
+  verifica le preferenze e lo stato dell'impegno al momento del fire (toggle nelle impostazioni
+  efficace anche sui promemoria già schedulati).
+- **Scheduling**: `WorkManagerHelper.scheduleImpegnoReminder/cancelImpegnoReminder`
+  (OneTimeWorkRequest unico per impegno, policy REPLACE). `ImpegnoRepository` riallinea la
+  schedulazione a ogni scrittura (insert/update/delete/completato) e all'avvio dell'app
+  (`rescheduleAllReminders`).
+- **`NotificationsFragment` reale**: la schermata "Promemoria" elenca gli impegni futuri con
+  reminder attivo (orario del promemoria incluso), con empty state e banner se le notifiche
+  sono disattivate; tap su un promemoria apre la modifica dell'impegno. Raggiungibile dal
+  drawer (nuovo `drawer_menu.xml`).
+- **Icona notifiche personalizzata** (`ic_notification`, campanella) al posto di
+  `ic_launcher_foreground`; nuovo canale notifiche "Promemoria Impegni" (IMPORTANCE_HIGH).
+
+### Sessione di Sviluppo: 6 Luglio 2026 (1)
 
 **Pulizia codice e completamento feature note**
 
@@ -63,11 +84,11 @@ Benvenuti nella documentazione ufficiale del progetto SantiBailor, un'applicazio
 2. **Localizzazione** ✅
    - [x] Traduzioni complete IT/EN (`values/` e `values-en/`)
 
-### Priorità Alta — Notifiche Impegni (prossima fase)
-3. **Sistema Notifiche Impegni**
-   - [ ] Worker per reminder degli impegni (sul modello di `DailySaintNotificationWorker`)
-   - [ ] Contenuto reale per `NotificationsFragment` (oggi è uno stub)
-   - [ ] Icona notifiche personalizzata (TODO in `NotificationHelper`)
+3. **Sistema Notifiche Impegni** ✅
+   - [x] Worker per reminder degli impegni (`ImpegnoReminderWorker`)
+   - [x] Contenuto reale per `NotificationsFragment` (lista promemoria programmati)
+   - [x] Icona notifiche personalizzata (`ic_notification`)
+   - [x] Fix inizializzazione WorkManager con `HiltWorkerFactory`
 
 ### Priorità Media — Dati al sicuro
 4. **Backup e Sincronizzazione**

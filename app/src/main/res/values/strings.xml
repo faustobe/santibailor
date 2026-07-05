@@ -2,7 +2,7 @@
     <string name="app_name">Santibailor</string>
     <string name="title_home">Home</string>
     <string name="title_dashboard">Dashboard</string>
-    <string name="title_notifications">Notifications</string>
+    <string name="title_notifications">Promemoria</string>
     <string name="title_settings">Impostazioni</string>
     <string name="title_edit_ricorrenza">Edit Ricorrenza</string>
     <string name="background_description">background description</string>
@@ -253,6 +253,13 @@
     <string name="delete_note">Elimina nota</string>
     <string name="delete_note_confirm">Sei sicuro di voler eliminare questa nota?</string>
     <string name="share_note">Condividi nota</string>
+
+    <!-- Promemoria impegni -->
+    <string name="impegno_reminder_notification_title">Promemoria impegno</string>
+    <string name="promemoria_empty_title">Nessun promemoria programmato</string>
+    <string name="promemoria_empty_desc">Attiva il promemoria su un impegno per vederlo qui</string>
+    <string name="promemoria_disabled_banner">I promemoria degli impegni sono disattivati nelle impostazioni</string>
+    <string name="promemoria_info_format">Promemoria: %1$s (%2$d min prima)</string>
     <string name="note_modified">Modificata: %s</string>
     <string name="my_notes">Le mie Note</string>
     <string name="no_notes">Nessuna nota trovata</string>

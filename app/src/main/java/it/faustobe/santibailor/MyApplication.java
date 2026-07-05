@@ -5,6 +5,7 @@ import android.content.SharedPreferences;
 import android.util.Log;
 
 import androidx.annotation.NonNull;
+import androidx.hilt.work.HiltWorkerFactory;
 import androidx.work.Configuration;
 import androidx.work.WorkManager;
 
@@ -15,6 +16,7 @@ import com.google.firebase.auth.FirebaseAuth;
 import com.google.firebase.auth.FirebaseAuthException;
 
 import dagger.hilt.android.HiltAndroidApp;
+import it.faustobe.santibailor.data.repository.ImpegnoRepository;
 import it.faustobe.santibailor.util.FirebaseErrorHandler;
 import it.faustobe.santibailor.util.ImageHandler;
 import it.faustobe.santibailor.util.LanguageManager;
@@ -30,6 +32,12 @@ public class MyApplication extends Application {
     @Inject
     ImageHandler imageHandler;
 
+    @Inject
+    HiltWorkerFactory workerFactory;
+
+    @Inject
+    ImpegnoRepository impegnoRepository;
+
     @Override
     public void onCreate() {
         super.onCreate();
@@ -38,9 +46,12 @@ public class MyApplication extends Application {
         ThemeManager.applyTheme(this);
         LanguageManager.applyLanguage(this);
 
-        // Inizializza manualmente WorkManager (dato che è disabilitato in AndroidManifest)
+        // Inizializza manualmente WorkManager (dato che è disabilitato in AndroidManifest).
+        // La HiltWorkerFactory è indispensabile: i worker @HiltWorker non hanno il
+        // costruttore (Context, WorkerParameters) richiesto dalla factory di default.
         try {
             Configuration config = new Configuration.Builder()
+                    .setWorkerFactory(workerFactory)
                     .setMinimumLoggingLevel(Log.DEBUG)
                     .build();
             WorkManager.initialize(this, config);
@@ -79,6 +90,9 @@ public class MyApplication extends Application {
         } else {
             Log.d(TAG, "WorkManager: Daily saint notification disabled by user preference");
         }
+
+        // Riallinea i promemoria degli impegni (idempotente, gira in background)
+        impegnoRepository.rescheduleAllReminders();
     }
 
     private void handleAuthenticationError(Exception exception) {
